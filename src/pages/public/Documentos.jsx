@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -8,6 +8,9 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { SearchInput } from "../../components/common/SearchInput";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { useDocumentos } from "../../context/documentos/useDocumentos";
+import { useAuth } from "../../context/auth/useAuth";
+import { ROLES } from "../../constants/roles";
+import { ROUTES } from "../../constants/routes";
 import {
   formatFileSize,
   getDocumentIcon,
@@ -19,6 +22,8 @@ import { matchesSearch } from "../../utils/search";
 
 export const Documentos = () => {
   const { documentos } = useDocumentos();
+  const { hasRole } = useAuth();
+  const puedeCrear = hasRole([ROLES.ADMIN, ROLES.DOCENTE]);
   const [busqueda, setBusqueda] = useState("");
 
   const documentosFiltrados = useMemo(
@@ -47,6 +52,9 @@ export const Documentos = () => {
         eyebrow="Repositorio"
         title="Documentos"
         description="Consulta documentos, formatos, imágenes y archivos institucionales organizados por tipo y fecha."
+        actionLabel={puedeCrear ? "Nuevo documento" : undefined}
+        actionTo={puedeCrear ? ROUTES.DOCUMENTOS_NUEVO : undefined}
+        actionIcon={Plus}
       />
 
       <SearchInput

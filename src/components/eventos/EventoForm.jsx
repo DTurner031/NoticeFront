@@ -1,5 +1,8 @@
+import { Link } from "react-router-dom";
+
 import { AudienceFields } from "../common/AudienceFields";
 import { FormError } from "../common/FormError";
+import { ROUTES } from "../../constants/routes";
 
 export const EventoForm = ({
   formulario,
@@ -8,6 +11,7 @@ export const EventoForm = ({
   buttonText,
   errors = {},
   handleAudienceChange,
+  cancelTo = ROUTES.ADMIN_EVENTOS,
 }) => {
   const inputClass = (field) =>
     `w-full border rounded-lg px-4 py-2 bg-transparent ${
@@ -37,6 +41,7 @@ export const EventoForm = ({
         <input
           type="date"
           name="fecha"
+          min={new Date().toISOString().substring(0, 10)}
           value={formulario.fecha ?? ""}
           onChange={handleChange}
           className={inputClass("fecha")}
@@ -57,18 +62,6 @@ export const EventoForm = ({
       </div>
 
       <div>
-        <label className="block mb-2 font-medium">Categoría</label>
-        <input
-          type="text"
-          name="categoria"
-          value={formulario.categoria ?? ""}
-          onChange={handleChange}
-          className={inputClass("categoria")}
-        />
-        <FormError message={errors.categoria} />
-      </div>
-
-      <div>
         <label className="block mb-2 font-medium">Descripción</label>
         <textarea
           name="descripcion"
@@ -86,6 +79,12 @@ export const EventoForm = ({
       />
 
       <div className="flex gap-4">
+        <Link
+          to={cancelTo}
+          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 px-6 py-3 text-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 sm:w-auto"
+        >
+          Cancelar
+        </Link>
         <button
           type="submit"
           className="w-full rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 sm:w-auto"

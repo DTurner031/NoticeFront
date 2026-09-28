@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
 
 import { AdminMobileCard } from "../../../components/common/AdminMobileCard";
 import { AdminTableWrapper } from "../../../components/common/AdminTableWrapper";
@@ -49,10 +48,10 @@ export const AdminDocumentos = () => {
     setDocumentoSeleccionado(null);
   };
 
-  const confirmarEliminacion = () => {
+  const confirmarEliminacion = async () => {
     if (!documentoSeleccionado) return;
 
-    eliminarDocumento(documentoSeleccionado.id);
+    await eliminarDocumento(documentoSeleccionado.id);
     cerrarModal();
   };
 
@@ -61,9 +60,6 @@ export const AdminDocumentos = () => {
       <PageHeader
         title="Administración de Documentos"
         description="Gestiona archivos, formatos y documentos publicados."
-        actionLabel="Nuevo Documento"
-        actionTo={ROUTES.ADMIN_DOCUMENTOS_NUEVO}
-        actionIcon={Plus}
       />
 
       <div className="rounded-xl bg-white p-4 shadow-md dark:bg-slate-800">
@@ -78,7 +74,7 @@ export const AdminDocumentos = () => {
         {documentosFiltrados.length === 0 ? (
           <EmptyState
             title="No se encontraron documentos"
-            message="Prueba con otra búsqueda o registra un nuevo documento."
+            message="Prueba con otra búsqueda. Para publicar un documento, hazlo desde el módulo Documentos."
           />
         ) : (
           documentosFiltrados.map((documento) => (
@@ -123,7 +119,7 @@ export const AdminDocumentos = () => {
               <EmptyState
                 colSpan={5}
                 title="No se encontraron documentos"
-                message="Prueba con otra búsqueda o registra un nuevo documento."
+                message="Prueba con otra búsqueda. Para publicar un documento, hazlo desde el módulo Documentos."
               />
             ) : (
               documentosFiltrados.map((documento) => (

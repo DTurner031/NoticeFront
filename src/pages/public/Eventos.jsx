@@ -1,4 +1,4 @@
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,6 +9,9 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { SearchInput } from "../../components/common/SearchInput";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { useEventos } from "../../context/eventos/useEventos";
+import { useAuth } from "../../context/auth/useAuth";
+import { ROLES } from "../../constants/roles";
+import { ROUTES } from "../../constants/routes";
 import {
   buildAudienceSearchText,
   getItemAudience,
@@ -20,6 +23,8 @@ import { matchesSearch } from "../../utils/search";
 
 export const Eventos = () => {
   const { eventos } = useEventos();
+  const { hasRole } = useAuth();
+  const puedeCrear = hasRole([ROLES.ADMIN, ROLES.DOCENTE]);
   const [categoria, setCategoria] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
 
@@ -57,6 +62,9 @@ export const Eventos = () => {
         eyebrow="Agenda"
         title="Eventos"
         description="Consulta próximas actividades académicas, conferencias, ferias, concursos y eventos institucionales."
+        actionLabel={puedeCrear ? "Nuevo evento" : undefined}
+        actionTo={puedeCrear ? ROUTES.EVENTOS_NUEVO : undefined}
+        actionIcon={Plus}
       />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">

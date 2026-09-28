@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
 
 import { AdminMobileCard } from "../../../components/common/AdminMobileCard";
 import { AdminTableWrapper } from "../../../components/common/AdminTableWrapper";
@@ -40,10 +39,10 @@ export const AdminEventos = () => {
     setEventoSeleccionado(null);
   };
 
-  const confirmarEliminacion = () => {
+  const confirmarEliminacion = async () => {
     if (!eventoSeleccionado) return;
 
-    eliminarEvento(eventoSeleccionado.id);
+    await eliminarEvento(eventoSeleccionado.id);
     cerrarModal();
   };
 
@@ -52,9 +51,6 @@ export const AdminEventos = () => {
       <PageHeader
         title="Administración de Eventos"
         description="Gestiona eventos, actividades y fechas importantes."
-        actionLabel="Nuevo Evento"
-        actionTo={ROUTES.ADMIN_EVENTOS_NUEVO}
-        actionIcon={Plus}
       />
 
       <div className="rounded-xl bg-white p-4 shadow-md dark:bg-slate-800">
@@ -69,7 +65,7 @@ export const AdminEventos = () => {
         {eventosFiltrados.length === 0 ? (
           <EmptyState
             title="No se encontraron eventos"
-            message="Prueba con otra búsqueda o registra un nuevo evento."
+            message="Prueba con otra búsqueda. Para publicar un evento, hazlo desde el módulo Eventos."
           />
         ) : (
           eventosFiltrados.map((evento) => (
@@ -111,7 +107,7 @@ export const AdminEventos = () => {
               <EmptyState
                 colSpan={6}
                 title="No se encontraron eventos"
-                message="Prueba con otra búsqueda o registra un nuevo evento."
+                message="Prueba con otra búsqueda. Para publicar un evento, hazlo desde el módulo Eventos."
               />
             ) : (
               eventosFiltrados.map((evento) => (

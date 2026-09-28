@@ -12,4 +12,4 @@ export const hasRole = (usuario, rolesPermitidos = []) => {
 };
 
 export const canAccessAdmin = (usuario) =>
-  hasRole(usuario, [ROLES.SUPERADMIN, ROLES.ADMIN]);
+  hasRole(usuario, [ROLES.ADMIN]);

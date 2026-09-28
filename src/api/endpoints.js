@@ -1,21 +1,22 @@
 export const ENDPOINTS = Object.freeze({
   auth: Object.freeze({
     login: "/auth/login",
-    me: "/auth/me",
-    logout: "/auth/logout",
+    register: "/auth/register",
   }),
   usuarios: "/usuarios",
   roles: "/roles",
-  planesEstudio: "/planes-estudio",
+  categorias: "/categorias",
+  academias: "/academias",
+  gruposTipos: "/grupostipos",
   materias: "/materias",
   grupos: "/grupos",
-  asignacionesDocentes: "/asignaciones-docentes",
-  publicaciones: "/publicaciones",
+  gruposInscribir: "/grupos/inscribir",
   noticias: "/noticias",
   eventos: "/eventos",
   documentos: "/documentos",
-  notificaciones: "/notificaciones",
-  archivos: "/archivos",
+  documentosPorNoticia: "/documentos/pornoticia",
+  comentarios: "/comentarios",
+  comentariosPorNoticia: "/comentarios/pornoticia",
 });
 
 export const buildEndpoint = (endpoint, params = {}) => {

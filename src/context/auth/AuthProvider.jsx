@@ -3,19 +3,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useUsuarios } from "../usuarios/useUsuarios";
 import {
   autenticarUsuario,
-  crearUsuarioRegistro,
+  registrarUsuario,
   obtenerSesion,
   guardarSesion,
   cerrarSesion,
 } from "../../services/authService";
-import { existeCorreo } from "../../services/usuariosService";
 import { hasRole, canAccessAdmin } from "../../utils/permissions";
 import { normalizeSubscriptions } from "../../constants/subscriptions";
 import { normalizeAcademicProfile } from "../../utils/academicProfile";
 import { AuthContext } from "./AuthContext";
 
 export const AuthProvider = ({ children }) => {
-  const { agregarUsuario, editarUsuario, usuarios } = useUsuarios();
+  const { editarUsuario } = useUsuarios();
 
   const [user, setUser] = useState(() => {
     const storedUser = obtenerSesion();
@@ -35,12 +34,12 @@ export const AuthProvider = ({ children }) => {
     guardarSesion(user);
   }, [user]);
 
-  const login = useCallback(
-    (correo, password) => {
-      const usuario = autenticarUsuario(usuarios, correo, password);
-
-      if (!usuario) return false;
-
+  // Ahora es asíncrono porque llama al backend real.
+  // Devuelve { ok: true } o { ok: false, mensaje } en vez de solo true/false,
+  // para poder mostrar el motivo real del rechazo (ej. "Correo o contraseña incorrectos").
+  const login = useCallback(async (correo, password) => {
+    try {
+      const usuario = await autenticarUsuario(correo, password);
       setUser({
         ...usuario,
         subscriptions: normalizeSubscriptions(usuario.subscriptions),
@@ -48,27 +47,25 @@ export const AuthProvider = ({ children }) => {
           ? normalizeAcademicProfile(usuario.academicProfile)
           : null,
       });
-      return true;
-    },
-    [usuarios]
-  );
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, mensaje: error.message || "Credenciales incorrectas" };
+    }
+  }, []);
 
-  const register = useCallback(
-    (nuevoUsuario) => {
-      if (existeCorreo(usuarios, nuevoUsuario.correo)) {
-        return false;
-      }
-
-      const usuarioCreado = crearUsuarioRegistro(nuevoUsuario);
-
-      agregarUsuario(usuarioCreado);
+  const register = useCallback(async (nuevoUsuario) => {
+    try {
+      const usuarioCreado = await registrarUsuario(nuevoUsuario);
       setUser(usuarioCreado);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, mensaje: error.message || "No se pudo completar el registro" };
+    }
+  }, []);
 
-      return true;
-    },
-    [agregarUsuario, usuarios]
-  );
-
+  // Nota: esto sigue actualizando el perfil solo en el almacenamiento local (mock).
+  // Cuando se conecte el módulo de Usuarios al backend, este método debe llamar
+  // a PUT /api/usuarios/{id} en su lugar.
   const updateUserProfile = useCallback(
     (datosActualizados) => {
       if (!user) return null;

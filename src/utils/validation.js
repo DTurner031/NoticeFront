@@ -51,6 +51,14 @@ export const createValidator = (rules) => (values) => {
           rule.rangeMessage || `Debe estar entre ${min} y ${max}`;
       }
     }
+
+    if (!isEmpty(value) && rule.minDateToday) {
+      const hoy = new Date().toISOString().substring(0, 10);
+      if (String(value) < hoy) {
+        errors[rule.field] =
+          rule.minDateMessage || "La fecha no puede ser anterior a hoy";
+      }
+    }
   });
 
   return errors;
@@ -75,11 +83,6 @@ export const noticiaRules = [
     minLengthMessage: "El título debe tener al menos 5 caracteres",
   },
   {
-    field: "fecha",
-    required: true,
-    requiredMessage: "La fecha es obligatoria",
-  },
-  {
     field: "descripcion",
     required: true,
     minLength: 10,
@@ -100,6 +103,8 @@ export const eventoRules = [
     field: "fecha",
     required: true,
     requiredMessage: "La fecha es obligatoria",
+    minDateToday: true,
+    minDateMessage: "La fecha no puede ser anterior al día de hoy",
   },
   {
     field: "lugar",
@@ -138,11 +143,6 @@ export const documentoRules = [
     minLength: 2,
     requiredMessage: "El tipo de documento es obligatorio",
     minLengthMessage: "El tipo debe tener al menos 2 caracteres",
-  },
-  {
-    field: "fecha",
-    required: true,
-    requiredMessage: "La fecha es obligatoria",
   },
   {
     field: "descripcion",

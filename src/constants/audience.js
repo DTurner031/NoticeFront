@@ -7,7 +7,6 @@ export const TARGET_ROLE_OPTIONS = Object.freeze([
   { value: AUDIENCE_ALL_VALUE, label: "Todos los roles" },
   { value: ROLES.ALUMNO, label: ROLE_LABELS[ROLES.ALUMNO] },
   { value: ROLES.DOCENTE, label: ROLE_LABELS[ROLES.DOCENTE] },
-  { value: ROLES.PERSONAL, label: ROLE_LABELS[ROLES.PERSONAL] },
   { value: ROLES.ADMIN, label: ROLE_LABELS[ROLES.ADMIN] },
 ]);
 
@@ -23,7 +22,7 @@ export const CAREER_OPTIONS = Object.freeze([
 
 export const SEMESTER_OPTIONS = Object.freeze([
   { value: AUDIENCE_ALL_VALUE, label: "Todos los semestres" },
-  ...Array.from({ length: 12 }, (_, index) => ({
+  ...Array.from({ length: 9 }, (_, index) => ({
     value: String(index + 1),
     label: `${index + 1}° semestre`,
   })),

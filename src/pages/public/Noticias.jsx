@@ -1,4 +1,4 @@
-import { Megaphone } from "lucide-react";
+import { Megaphone, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,6 +9,9 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { SearchInput } from "../../components/common/SearchInput";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { useNoticias } from "../../context/noticias/useNoticias";
+import { useAuth } from "../../context/auth/useAuth";
+import { ROLES } from "../../constants/roles";
+import { ROUTES } from "../../constants/routes";
 import {
   buildAudienceSearchText,
   getItemAudience,
@@ -20,6 +23,8 @@ import { matchesSearch } from "../../utils/search";
 
 export const Noticias = () => {
   const { noticias } = useNoticias();
+  const { hasRole } = useAuth();
+  const puedeCrear = hasRole([ROLES.ADMIN]);
   const [busqueda, setBusqueda] = useState("");
 
   const noticiasFiltrados = useMemo(
@@ -47,6 +52,9 @@ export const Noticias = () => {
         eyebrow="Comunicados"
         title="Noticias"
         description="Consulta noticias institucionales, trámites, fechas importantes y comunicados dirigidos a la comunidad de ESIME."
+        actionLabel={puedeCrear ? "Nueva noticia" : undefined}
+        actionTo={puedeCrear ? ROUTES.NOTICIAS_NUEVO : undefined}
+        actionIcon={Plus}
       />
 
       <SearchInput

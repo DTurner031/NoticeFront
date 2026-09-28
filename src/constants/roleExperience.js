@@ -28,27 +28,11 @@ export const ROLE_HOME_COPY = Object.freeze({
     ctaLabel: "Ver documentos",
     ctaPath: ROUTES.DOCUMENTOS,
   },
-  [ROLES.PERSONAL]: {
-    eyebrow: "Vista personal administrativo",
-    title: "Seguimiento institucional y operativo",
-    description:
-      "Accede rápidamente a comunicados, documentos administrativos y eventos relevantes para la comunidad.",
-    ctaLabel: "Consultar calendario",
-    ctaPath: ROUTES.CALENDARIO,
-  },
   [ROLES.ADMIN]: {
     eyebrow: "Vista administrador",
     title: "Panel de control del portal",
     description:
       "Supervisa métricas, administra publicaciones y mantén actualizada la comunicación institucional.",
-    ctaLabel: "Abrir administración",
-    ctaPath: ROUTES.ADMIN,
-  },
-  [ROLES.SUPERADMIN]: {
-    eyebrow: "Vista superadministrador",
-    title: "Control general del portal",
-    description:
-      "Gestiona el contenido, usuarios y operación completa del portal académico.",
     ctaLabel: "Abrir administración",
     ctaPath: ROUTES.ADMIN,
   },
@@ -135,32 +119,6 @@ export const ROLE_QUICK_ACTIONS = Object.freeze({
       path: ROUTES.PERFIL,
     },
   ],
-  [ROLES.PERSONAL]: [
-    {
-      title: "Noticias",
-      description: "Información operativa",
-      icon: Megaphone,
-      path: ROUTES.NOTICIAS,
-    },
-    {
-      title: "Documentos",
-      description: "Formatos internos",
-      icon: FileText,
-      path: ROUTES.DOCUMENTOS,
-    },
-    {
-      title: "Calendario",
-      description: "Fechas de seguimiento",
-      icon: Calendar,
-      path: ROUTES.CALENDARIO,
-    },
-    {
-      title: "Eventos",
-      description: "Actividades institucionales",
-      icon: Trophy,
-      path: ROUTES.EVENTOS,
-    },
-  ],
   [ROLES.ADMIN]: [
     {
       title: "Administración",
@@ -175,42 +133,16 @@ export const ROLE_QUICK_ACTIONS = Object.freeze({
       path: ROUTES.ADMIN_USUARIOS,
     },
     {
-      title: "Nuevo noticia",
+      title: "Nueva noticia",
       description: "Publicar comunicado",
       icon: Megaphone,
-      path: ROUTES.ADMIN_NOTICIAS_NUEVO,
+      path: ROUTES.NOTICIAS_NUEVO,
     },
     {
       title: "Nuevo documento",
       description: "Registrar archivo",
       icon: FileText,
-      path: ROUTES.ADMIN_DOCUMENTOS_NUEVO,
-    },
-  ],
-  [ROLES.SUPERADMIN]: [
-    {
-      title: "Administración",
-      description: "Dashboard general",
-      icon: ShieldCheck,
-      path: ROUTES.ADMIN,
-    },
-    {
-      title: "Usuarios",
-      description: "Gestionar accesos",
-      icon: UsersRound,
-      path: ROUTES.ADMIN_USUARIOS,
-    },
-    {
-      title: "Nuevo noticia",
-      description: "Publicar comunicado",
-      icon: Megaphone,
-      path: ROUTES.ADMIN_NOTICIAS_NUEVO,
-    },
-    {
-      title: "Nuevo evento",
-      description: "Agendar actividad",
-      icon: Trophy,
-      path: ROUTES.ADMIN_EVENTOS_NUEVO,
+      path: ROUTES.DOCUMENTOS_NUEVO,
     },
   ],
 });
@@ -253,20 +185,6 @@ export const ROLE_FOCUS_CARDS = Object.freeze({
       label: "Ver eventos",
     },
   ],
-  [ROLES.PERSONAL]: [
-    {
-      title: "Seguimiento administrativo",
-      description: "Consulta noticias y documentos institucionales para apoyar los procesos internos.",
-      path: ROUTES.NOTICIAS,
-      label: "Ver noticias",
-    },
-    {
-      title: "Calendario operativo",
-      description: "Revisa fechas y actividades próximas de la unidad académica.",
-      path: ROUTES.CALENDARIO,
-      label: "Ver calendario",
-    },
-  ],
   [ROLES.ADMIN]: [
     {
       title: "Supervisa el portal",
@@ -277,22 +195,8 @@ export const ROLE_FOCUS_CARDS = Object.freeze({
     {
       title: "Publica contenido",
       description: "Crea noticias, eventos y documentos para mantener informada a la comunidad.",
-      path: ROUTES.ADMIN_NOTICIAS_NUEVO,
-      label: "Nuevo noticia",
-    },
-  ],
-  [ROLES.SUPERADMIN]: [
-    {
-      title: "Control general",
-      description: "Administra usuarios, publicaciones y operación completa del portal.",
-      path: ROUTES.ADMIN,
-      label: "Ir al dashboard",
-    },
-    {
-      title: "Gestión de usuarios",
-      description: "Crea, actualiza y revisa perfiles por rol.",
-      path: ROUTES.ADMIN_USUARIOS,
-      label: "Ver usuarios",
+      path: ROUTES.NOTICIAS_NUEVO,
+      label: "Nueva noticia",
     },
   ],
 });
@@ -326,17 +230,6 @@ export const ROLE_CONTENT_FILTERS = Object.freeze({
     "evaluación",
     "grupo",
     "grupos",
-  ],
-  [ROLES.PERSONAL]: [
-    "personal",
-    "administrativo",
-    "servicios escolares",
-    "tramite",
-    "trámite",
-    "documento",
-    "formato",
-    "calendario",
-    "operativo",
   ],
 });
 

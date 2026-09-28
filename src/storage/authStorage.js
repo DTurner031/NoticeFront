@@ -1,4 +1,4 @@
-import { obtenerItem, guardarItem, eliminarItem } from "./localStorage";
+import { obtenerItem, guardarItem, eliminarItem } from "./sessionStorageUtil";
 import { STORAGE_KEYS } from "./storageKeys";
 
 export const obtenerUsuarioSesion = () =>

@@ -8,14 +8,17 @@ import { Home } from "../pages/public/Home";
 
 import { Noticias } from "../pages/public/Noticias";
 import { NoticiaDetalle } from "../pages/public/NoticiaDetalle";
+import { NoticiaNueva } from "../pages/public/NoticiaNueva";
 
 import { Eventos } from "../pages/public/Eventos";
 import { EventoDetalle } from "../pages/public/EventoDetalle";
+import { EventoNuevo } from "../pages/public/EventoNuevo";
 
 import { Calendario } from "../pages/public/Calendario";
 
 import { Documentos } from "../pages/public/Documentos";
 import { DocumentoDetalle } from "../pages/public/DocumentoDetalle";
+import { DocumentoNuevo } from "../pages/public/DocumentoNuevo";
 
 import { Perfil } from "../pages/public/Perfil";
 import { Notificaciones } from "../pages/public/Notificaciones";
@@ -29,21 +32,17 @@ import { Login } from "../pages/auth/Login";
 import { PanelAdmin } from "../pages/PanelAdmin";
 
 import { AdminNoticias } from "../pages/admin/noticias/AdminNoticias";
-import { AdminNuevoNoticia } from "../pages/admin/noticias/AdminNuevoNoticia";
 import { AdminEditarNoticia } from "../pages/admin/noticias/AdminEditarNoticia";
 
 import { AdminEventos } from "../pages/admin/eventos/AdminEventos";
-import { AdminNuevoEvento } from "../pages/admin/eventos/AdminNuevoEvento";
 import { AdminEditarEvento } from "../pages/admin/eventos/AdminEditarEvento";
 
 import { AdminDocumentos } from "../pages/admin/documentos/AdminDocumentos";
-import { AdminNuevoDocumento } from "../pages/admin/documentos/AdminNuevoDocumento";
 import { AdminEditarDocumento } from "../pages/admin/documentos/AdminEditarDocumento";
 
 import { AdminUsuarios } from "../pages/admin/usuarios/AdminUsuarios";
 import { AdminNuevoUsuario } from "../pages/admin/usuarios/AdminNuevoUsuario";
 import { AdminEditarUsuario } from "../pages/admin/usuarios/AdminEditarUsuario";
-import { AdminAcademico } from "../pages/admin/academico/AdminAcademico";
 
 /* Rutas protegidas */
 import { PrivateRoute } from "./PrivateRoute";
@@ -184,11 +183,68 @@ return ( <Routes>
   />
 
 
+  {/* Crear contenido desde cada módulo (permisos iguales a los del backend) */}
+  <Route
+    path={ROUTES.NOTICIAS_NUEVO}
+    element={
+      <RoleRoute roles={[ROLES.ADMIN]}>
+        <Layout>
+          <NoticiaNueva />
+        </Layout>
+      </RoleRoute>
+    }
+  />
+
+  <Route
+    path={ROUTES.EVENTOS_NUEVO}
+    element={
+      <RoleRoute roles={[ROLES.ADMIN, ROLES.DOCENTE]}>
+        <Layout>
+          <EventoNuevo />
+        </Layout>
+      </RoleRoute>
+    }
+  />
+
+  <Route
+    path={ROUTES.DOCUMENTOS_NUEVO}
+    element={
+      <RoleRoute roles={[ROLES.ADMIN, ROLES.DOCENTE]}>
+        <Layout>
+          <DocumentoNuevo />
+        </Layout>
+      </RoleRoute>
+    }
+  />
+
+  {/* Editar lo propio: el Docente edita lo que él publicó (la pantalla valida que sea suyo) */}
+  <Route
+    path={ROUTES.EVENTOS_EDITAR}
+    element={
+      <RoleRoute roles={[ROLES.ADMIN, ROLES.DOCENTE]}>
+        <Layout>
+          <AdminEditarEvento />
+        </Layout>
+      </RoleRoute>
+    }
+  />
+
+  <Route
+    path={ROUTES.DOCUMENTOS_EDITAR}
+    element={
+      <RoleRoute roles={[ROLES.ADMIN, ROLES.DOCENTE]}>
+        <Layout>
+          <AdminEditarDocumento />
+        </Layout>
+      </RoleRoute>
+    }
+  />
+
   {/* Publicaciones docentes */}
   <Route
     path={ROUTES.DOCENTE_PUBLICACIONES}
     element={
-      <RoleRoute roles={[ROLES.DOCENTE, ROLES.ADMIN, ROLES.SUPERADMIN]}>
+      <RoleRoute roles={[ROLES.DOCENTE, ROLES.ADMIN]}>
         <Layout>
           <DocentePublicaciones />
         </Layout>
@@ -220,17 +276,6 @@ return ( <Routes>
 />
 
 <Route
-  path={ROUTES.ADMIN_NOTICIAS_NUEVO}
-  element={
-    <AdminRoute>
-      <Layout>
-        <AdminNuevoNoticia />
-      </Layout>
-    </AdminRoute>
-  }
-/>
-
-<Route
   path={ROUTES.ADMIN_NOTICIAS_EDITAR}
   element={
     <AdminRoute>
@@ -253,17 +298,6 @@ return ( <Routes>
 />
 
 <Route
-  path={ROUTES.ADMIN_EVENTOS_NUEVO}
-  element={
-    <AdminRoute>
-      <Layout>
-        <AdminNuevoEvento />
-      </Layout>
-    </AdminRoute>
-  }
-/>
-
-<Route
   path={ROUTES.ADMIN_EVENTOS_EDITAR}
   element={
     <AdminRoute>
@@ -280,17 +314,6 @@ return ( <Routes>
     <AdminRoute>
       <Layout>
         <AdminDocumentos />
-      </Layout>
-    </AdminRoute>
-  }
-/>
-
-<Route
-  path={ROUTES.ADMIN_DOCUMENTOS_NUEVO}
-  element={
-    <AdminRoute>
-      <Layout>
-        <AdminNuevoDocumento />
       </Layout>
     </AdminRoute>
   }
@@ -339,16 +362,6 @@ return ( <Routes>
   }
 />
 
-<Route
-  path={ROUTES.ADMIN_ACADEMICO}
-  element={
-    <AdminRoute>
-      <Layout>
-        <AdminAcademico />
-      </Layout>
-    </AdminRoute>
-  }
-/>
 <Route
   path="*"
   element={

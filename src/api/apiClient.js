@@ -1,65 +1,67 @@
+import axios from "axios";
 import { appConfig } from "../config/appConfig";
-import { getAuthToken } from "./authToken";
+import { getAuthToken, clearAuthToken } from "./authToken";
+import { eliminarUsuarioSesion } from "../storage/authStorage";
 import { ApiError } from "./apiError";
 
 const normalizeBaseUrl = (url) => String(url || "").replace(/\/$/, "");
 
-const buildUrl = (path) => {
-  const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
-  return `${normalizeBaseUrl(appConfig.apiUrl)}${normalizedPath}`;
-};
+// Instancia de Axios centralizada: toda petición al backend pasa por aquí
+const axiosInstance = axios.create({
+  baseURL: normalizeBaseUrl(appConfig.apiUrl),
+});
 
-const buildHeaders = (headers = {}, hasJsonBody = false) => {
+// Interceptor de petición: agrega el token JWT automáticamente si existe
+axiosInstance.interceptors.request.use((config) => {
   const token = getAuthToken();
-  const finalHeaders = new Headers(headers);
-
-  if (hasJsonBody && !finalHeaders.has("Content-Type")) {
-    finalHeaders.set("Content-Type", "application/json");
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
 
-  if (token && !finalHeaders.has("Authorization")) {
-    finalHeaders.set("Authorization", `Bearer ${token}`);
-  }
-
-  return finalHeaders;
-};
-
-const parseResponse = async (response) => {
-  const contentType = response.headers.get("content-type") || "";
-
-  if (response.status === 204) return null;
-
-  if (contentType.includes("application/json")) {
-    return response.json();
-  }
-
-  return response.text();
-};
-
-export const apiClient = async (path, options = {}) => {
-  const { body, headers, ...requestOptions } = options;
-  const hasBody = body !== undefined && body !== null;
-  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
-  const hasJsonBody = hasBody && !isFormData && typeof body !== "string";
-
-  const response = await fetch(buildUrl(path), {
-    ...requestOptions,
-    headers: buildHeaders(headers, hasJsonBody),
-    body: hasJsonBody ? JSON.stringify(body) : body,
-  });
-
-  const data = await parseResponse(response);
-
-  if (!response.ok) {
+// Interceptor de respuesta: normaliza los errores de Axios a nuestra clase ApiError
+axiosInstance.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const status = error.response?.status ?? 0;
+    const data = error.response?.data ?? null;
     const message =
+      data?.mensaje ||
       data?.message ||
-      data?.error ||
-      `Error HTTP ${response.status} al consultar el servidor.`;
+      data?.title ||
+      error.message ||
+      `Error HTTP ${status} al consultar el servidor.`;
 
-    throw new ApiError(message, response.status, data);
+    // El token ya no es válido (expiró, cambió la Key del servidor, etc.):
+    // cerramos sesión localmente y mandamos al login, en vez de dejar
+    // al usuario atorado viendo un 401 sin saber qué pasó.
+    if (status === 401) {
+      clearAuthToken();
+      eliminarUsuarioSesion();
+      if (typeof window !== "undefined" && !window.location.pathname.endsWith("/login")) {
+        window.location.assign("/login");
+      }
+    }
+
+    return Promise.reject(new ApiError(message, status, data));
   }
+);
 
-  return data;
+export const apiClient = (path, options = {}) => {
+  const { body, method = "GET", headers, ...rest } = options;
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
+  return axiosInstance.request({
+    url: path,
+    method,
+    data: body,
+    headers: {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...headers,
+    },
+    ...rest,
+  });
 };
 
 export const get = (path) => apiClient(path, { method: "GET" });

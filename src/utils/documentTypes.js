@@ -29,6 +29,9 @@ export const DOCUMENT_TYPES = [
   { value: "Otro", label: "Otro", extensions: [], accept: "" },
 ];
 
+// Máximo de archivos que se pueden subir en una sola vez (un documento por archivo)
+export const MAX_UPLOAD_FILES = 5;
+
 export const DOCUMENT_ACCEPT = DOCUMENT_TYPES.map((type) => type.accept)
   .filter(Boolean)
   .join(",");

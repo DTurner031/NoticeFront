@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
 
 import { AdminMobileCard } from "../../../components/common/AdminMobileCard";
 import { AdminTableWrapper } from "../../../components/common/AdminTableWrapper";
@@ -39,10 +38,10 @@ export const AdminNoticias = () => {
     setNoticiaSeleccionado(null);
   };
 
-  const confirmarEliminacion = () => {
+  const confirmarEliminacion = async () => {
     if (!noticiaSeleccionado) return;
 
-    eliminarNoticia(noticiaSeleccionado.id);
+    await eliminarNoticia(noticiaSeleccionado.id);
     cerrarModal();
   };
 
@@ -50,10 +49,7 @@ export const AdminNoticias = () => {
     <section className="space-y-6">
       <PageHeader
         title="Administración de Noticias"
-        description="Gestiona los noticias publicados en el portal."
-        actionLabel="Nuevo Noticia"
-        actionTo={ROUTES.ADMIN_NOTICIAS_NUEVO}
-        actionIcon={Plus}
+        description="Gestiona las noticias publicadas en el portal."
       />
 
       <div className="rounded-xl bg-white p-4 shadow-md dark:bg-slate-800">
@@ -68,7 +64,7 @@ export const AdminNoticias = () => {
         {noticiasFiltrados.length === 0 ? (
           <EmptyState
             title="No se encontraron noticias"
-            message="Prueba con otra búsqueda o registra un nuevo noticia."
+            message="Prueba con otra búsqueda. Para publicar una noticia, hazlo desde el módulo Noticias."
           />
         ) : (
           noticiasFiltrados.map((noticia) => (
@@ -104,7 +100,7 @@ export const AdminNoticias = () => {
               <EmptyState
                 colSpan={4}
                 title="No se encontraron noticias"
-                message="Prueba con otra búsqueda o registra un nuevo noticia."
+                message="Prueba con otra búsqueda. Para publicar una noticia, hazlo desde el módulo Noticias."
               />
             ) : (
               noticiasFiltrados.map((noticia) => (
@@ -140,7 +136,7 @@ export const AdminNoticias = () => {
         isOpen={modalOpen}
         title="Eliminar Noticia"
         message={`¿Deseas eliminar "${
-          noticiaSeleccionado?.titulo || "este noticia"
+          noticiaSeleccionado?.titulo || "esta noticia"
         }"? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar noticia"
         onConfirm={confirmarEliminacion}

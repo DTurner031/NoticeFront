@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { useAuth } from "../../../context/auth/useAuth";
 import { useEventos } from "../../../context/eventos/useEventos";
 import { useToast } from "../../../context/toast/useToast";
 import { EventoForm } from "../../../components/eventos/EventoForm";
+import { ROLES } from "../../../constants/roles";
 import { ROUTES } from "../../../constants/routes";
 import { mismoId } from "../../../utils/id";
 import {
@@ -13,25 +15,18 @@ import {
 } from "../../../utils/validation";
 import { normalizeAudience } from "../../../utils/audience";
 
-export const AdminEditarEvento = () => {
-  const { id } = useParams();
+// Formulario de edición. Se monta SOLO cuando el evento ya llegó del servidor,
+// así el estado inicial siempre tiene los datos reales (aunque recargues la página).
+const EditarEventoForm = ({ evento, volverA }) => {
   const navigate = useNavigate();
 
-  const { eventos, editarEvento } = useEventos();
+  const { editarEvento } = useEventos();
   const { success, error } = useToast();
 
-  const evento = eventos.find((item) => mismoId(item.id, id));
-
-  const [formulario, setFormulario] = useState(
-    evento || {
-      titulo: "",
-      fecha: "",
-      lugar: "",
-      categoria: "",
-      descripcion: "",
-      audiencia: normalizeAudience(),
-    }
-  );
+  const [formulario, setFormulario] = useState(() => ({
+    ...evento,
+    audiencia: normalizeAudience(evento.audiencia),
+  }));
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -62,11 +57,17 @@ export const AdminEditarEvento = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const datosNormalizados = normalizeFormValues(formulario);
     const validationErrors = validateEvento(datosNormalizados);
+
+    // La regla "no fechas pasadas" solo aplica si se cambió la fecha:
+    // así se puede corregir un evento que ya ocurrió sin tener que tocarla.
+    if (datosNormalizados.fecha && datosNormalizados.fecha === evento.fecha) {
+      delete validationErrors.fecha;
+    }
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
@@ -74,20 +75,14 @@ export const AdminEditarEvento = () => {
       return;
     }
 
-    editarEvento(id, datosNormalizados);
-    success("Evento actualizado correctamente");
-    navigate(ROUTES.ADMIN_EVENTOS);
+    try {
+      await editarEvento(evento.id, datosNormalizados);
+      success("Evento actualizado correctamente");
+      navigate(volverA);
+    } catch (err) {
+      error(err.message || "No se pudo actualizar el evento");
+    }
   };
-
-  if (!evento) {
-    return (
-      <section>
-        <h2 className="text-red-600 font-bold text-xl">
-          Evento no encontrado
-        </h2>
-      </section>
-    );
-  }
 
   return (
     <section className="space-y-6">
@@ -104,7 +99,52 @@ export const AdminEditarEvento = () => {
         buttonText="Actualizar Evento"
         errors={errors}
         handleAudienceChange={handleAudienceChange}
+        cancelTo={volverA}
       />
     </section>
   );
+};
+
+// Sirve para dos rutas: /admin/eventos/editar/:id (Administrador)
+// y /eventos/editar/:id (Docente, solo sobre sus propios eventos).
+export const AdminEditarEvento = () => {
+  const { id } = useParams();
+  const { user, hasRole } = useAuth();
+  const { eventos, loading } = useEventos();
+
+  const esAdmin = hasRole([ROLES.ADMIN]);
+  const volverA = esAdmin ? ROUTES.ADMIN_EVENTOS : ROUTES.DOCENTE_PUBLICACIONES;
+
+  const evento = eventos.find((item) => mismoId(item.id, id));
+
+  if (loading) {
+    return (
+      <section>
+        <p className="text-slate-500 dark:text-slate-300">Cargando evento...</p>
+      </section>
+    );
+  }
+
+  if (!evento) {
+    return (
+      <section>
+        <h2 className="text-red-600 font-bold text-xl">Evento no encontrado</h2>
+      </section>
+    );
+  }
+
+  if (!esAdmin && String(evento.idUsuario) !== String(user?.id)) {
+    return (
+      <section className="space-y-3">
+        <h2 className="text-red-600 font-bold text-xl">
+          Solo puedes editar los eventos que tú publicaste
+        </h2>
+        <Link to={volverA} className="text-[#6F1D46] underline dark:text-pink-200">
+          Volver a mis publicaciones
+        </Link>
+      </section>
+    );
+  }
+
+  return <EditarEventoForm key={evento.id} evento={evento} volverA={volverA} />;
 };

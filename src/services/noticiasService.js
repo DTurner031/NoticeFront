@@ -1,41 +1,62 @@
-import { crearId, mismoId } from "../utils/id";
+import { get, post, put, remove } from "../api/apiClient";
+import { ENDPOINTS } from "../api/endpoints";
 import { normalizeAudience } from "../utils/audience";
-import {
-  obtenerNoticiasStorage,
-  guardarNoticiasStorage,
-} from "../storage/noticiasStorage";
 
-export const obtenerNoticias = () => obtenerNoticiasStorage();
-
-
-const normalizeContent = (content) => ({
-  ...content,
-  audiencia: normalizeAudience(content.audiencia),
+// ---- Mapeo backend -> frontend ----
+// El backend usa: idNoticia, titulo, contenido, fechaPublicacion, audiencia{...}
+// El frontend (formularios/páginas) usa: id, titulo, fecha, descripcion, audiencia{...}
+const mapNoticiaFromApi = (n) => ({
+  id: n.idNoticia,
+  titulo: n.titulo,
+  descripcion: n.contenido,
+  fecha: n.fechaPublicacion ? n.fechaPublicacion.substring(0, 10) : "",
+  autor: n.autorNombre,
+  idUsuario: n.idUsuario,
+  categoria: n.categoriaNombre,
+  idCategoria: n.idCategoria,
+  activo: n.activo,
+  audiencia: normalizeAudience(n.audiencia),
+  createdAt: n.fechaAlta,
 });
 
-export const guardarNoticias = (noticias) => guardarNoticiasStorage(noticias);
-
-export const crearNoticia = (nuevoNoticia) => ({
-  ...normalizeContent(nuevoNoticia),
-  id: crearId(),
-  createdAt: new Date().toISOString(),
+// ---- Mapeo frontend -> backend ----
+const mapNoticiaToApi = (n, idUsuario, fechaPublicacion) => ({
+  titulo: n.titulo,
+  contenido: n.descripcion,
+  idUsuario,
+  idCategoria: n.idCategoria ?? null,
+  fechaPublicacion,
+  audiencia: normalizeAudience(n.audiencia),
 });
 
-export const agregarNoticiaLista = (noticias, nuevoNoticia) => [
-  crearNoticia(nuevoNoticia),
-  ...noticias,
-];
+const hoyISO = () => new Date().toISOString().substring(0, 10);
 
-export const editarNoticiaLista = (noticias, id, datosActualizados) =>
-  noticias.map((noticia) =>
-    mismoId(noticia.id, id)
-      ? {
-          ...noticia,
-          ...normalizeContent(datosActualizados),
-          updatedAt: new Date().toISOString(),
-        }
-      : noticia
+export const obtenerNoticias = async () => {
+  const data = await get(ENDPOINTS.noticias);
+  return data.map(mapNoticiaFromApi);
+};
+
+// La fecha de publicación se asigna sola: es "ahora mismo", no la elige quien publica.
+export const crearNoticiaApi = async (datosFormulario, idUsuario) => {
+  const creada = await post(
+    ENDPOINTS.noticias,
+    mapNoticiaToApi(datosFormulario, idUsuario, hoyISO())
   );
+  return mapNoticiaFromApi(creada);
+};
 
-export const eliminarNoticiaLista = (noticias, id) =>
-  noticias.filter((noticia) => !mismoId(noticia.id, id));
+// Al editar, se conserva la fecha de publicación original (fechaOriginal),
+// porque el formulario ya no permite cambiarla.
+export const editarNoticiaApi = async (id, datosFormulario, fechaOriginal) => {
+  await put(`${ENDPOINTS.noticias}/${id}`, {
+    titulo: datosFormulario.titulo,
+    contenido: datosFormulario.descripcion,
+    idCategoria: datosFormulario.idCategoria ?? null,
+    fechaPublicacion: fechaOriginal,
+    audiencia: normalizeAudience(datosFormulario.audiencia),
+  });
+};
+
+export const eliminarNoticiaApi = async (id) => {
+  await remove(`${ENDPOINTS.noticias}/${id}`);
+};

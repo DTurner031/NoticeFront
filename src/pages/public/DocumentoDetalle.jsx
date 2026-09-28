@@ -81,7 +81,7 @@ export const DocumentoDetalle = () => {
             {documento.archivoNombre && (
               <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700/60">
                 <p className="font-semibold text-slate-800 dark:text-white">
-                  Archivo registrado
+                  Archivo adjunto
                 </p>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                   {documento.archivoNombre}
@@ -92,19 +92,35 @@ export const DocumentoDetalle = () => {
               </div>
             )}
 
-            {documento.url ? (
-              <a
-                href={documento.url}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#6F1D46] px-6 py-3 font-semibold text-white transition hover:opacity-90"
-              >
-                Abrir documento
-                <ExternalLink size={18} />
-              </a>
+            {documento.archivoUrl || documento.url ? (
+              <div className="mt-8 flex flex-wrap gap-3">
+                {documento.archivoUrl && (
+                  <a
+                    href={documento.archivoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#6F1D46] px-6 py-3 font-semibold text-white transition hover:opacity-90"
+                  >
+                    Descargar archivo
+                    <ExternalLink size={18} />
+                  </a>
+                )}
+
+                {documento.url && (
+                  <a
+                    href={documento.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#6F1D46] px-6 py-3 font-semibold text-[#6F1D46] transition hover:bg-[#6F1D46]/10 dark:border-slate-400 dark:text-slate-200"
+                  >
+                    Abrir enlace
+                    <ExternalLink size={18} />
+                  </a>
+                )}
+              </div>
             ) : (
               <p className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-700 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-                Este documento ya tiene sus datos registrados. La descarga del archivo se conectará cuando exista almacenamiento en backend.
+                Este documento no tiene un archivo ni un enlace disponible.
               </p>
             )}
           </div>

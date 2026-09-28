@@ -2,40 +2,67 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   obtenerDocumentos,
-  guardarDocumentos,
-  agregarDocumentoLista,
-  editarDocumentoLista,
-  eliminarDocumentoLista,
+  crearDocumentoApi,
+  editarDocumentoApi,
+  eliminarDocumentoApi,
 } from "../../services/documentosService";
 import { DocumentosContext } from "./DocumentosContext";
 
 export const DocumentosProvider = ({ children }) => {
-  const [documentos, setDocumentos] = useState(() => obtenerDocumentos());
+  const [documentos, setDocumentos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // silencioso = true: recarga la lista sin mostrar "cargando" (para no parpadear)
+  const cargarDocumentos = useCallback(async ({ silencioso = false } = {}) => {
+    if (!silencioso) setLoading(true);
+    setError(null);
+    try {
+      const data = await obtenerDocumentos();
+      setDocumentos(data);
+    } catch (err) {
+      setError(err.message || "No se pudieron cargar los documentos");
+    } finally {
+      if (!silencioso) setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    guardarDocumentos(documentos);
-  }, [documentos]);
+    cargarDocumentos();
+  }, [cargarDocumentos]);
 
-  const agregarDocumento = useCallback((nuevoDocumento) => {
-    setDocumentos((prev) => agregarDocumentoLista(prev, nuevoDocumento));
+  const agregarDocumento = useCallback(async (nuevoDocumento) => {
+    const creado = await crearDocumentoApi(nuevoDocumento);
+    setDocumentos((prev) => [creado, ...prev]);
+    return creado;
   }, []);
 
-  const eliminarDocumento = useCallback((id) => {
-    setDocumentos((prev) => eliminarDocumentoLista(prev, id));
-  }, []);
+  // Después de editar recargamos la lista: si se subió un archivo nuevo,
+  // el servidor le asigna una ruta nueva que solo él conoce.
+  const editarDocumento = useCallback(
+    async (id, datosActualizados) => {
+      await editarDocumentoApi(id, datosActualizados);
+      await cargarDocumentos({ silencioso: true });
+    },
+    [cargarDocumentos]
+  );
 
-  const editarDocumento = useCallback((id, datosActualizados) => {
-    setDocumentos((prev) => editarDocumentoLista(prev, id, datosActualizados));
+  const eliminarDocumento = useCallback(async (id) => {
+    await eliminarDocumentoApi(id);
+    setDocumentos((prev) => prev.filter((doc) => String(doc.id) !== String(id)));
   }, []);
 
   const value = useMemo(
     () => ({
       documentos,
+      loading,
+      error,
+      recargarDocumentos: cargarDocumentos,
       agregarDocumento,
       eliminarDocumento,
       editarDocumento,
     }),
-    [documentos, agregarDocumento, eliminarDocumento, editarDocumento]
+    [documentos, loading, error, cargarDocumentos, agregarDocumento, eliminarDocumento, editarDocumento]
   );
 
   return (

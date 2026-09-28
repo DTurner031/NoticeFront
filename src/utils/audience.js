@@ -84,7 +84,7 @@ export const canReceiveAudience = (audiencia, user) => {
 
   const userRole = normalizeRole(user.rol);
 
-  if (userRole === ROLES.ADMIN || userRole === ROLES.SUPERADMIN) return true;
+  if (userRole === ROLES.ADMIN) return true;
 
   const matchesRole = valueMatchesSelection(normalizedAudience.roles, userRole);
   const matchesCareer = valueMatchesSelection(normalizedAudience.carreras, user.carrera);
@@ -146,7 +146,7 @@ const userMatchesAcademicTarget = (target, user) => {
 
   const userRole = normalizeRole(user.rol);
 
-  if (userRole === ROLES.ADMIN || userRole === ROLES.SUPERADMIN) return true;
+  if (userRole === ROLES.ADMIN) return true;
 
   if (userRole === ROLES.DOCENTE) {
     return String(target.profesorId || target.docenteId || "") === String(user.id || "");

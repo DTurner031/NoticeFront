@@ -1,13 +1,9 @@
 import {
   Bell,
   CalendarDays,
-  FilePlus2,
   FileText,
-  Megaphone,
-  PlusCircle,
   UserPlus,
   Users,
-  GraduationCap,
 } from "lucide-react";
 
 import { AdminListCard } from "../components/admin/AdminListCard";
@@ -15,7 +11,6 @@ import { AdminStatCard } from "../components/admin/AdminStatCard";
 import { QuickActionCard } from "../components/admin/QuickActionCard";
 import { getRoleLabel, normalizeRole } from "../constants/roles";
 import { ROUTES, buildRoute } from "../constants/routes";
-import { useAcademico } from "../context/academico/useAcademico";
 import { useNoticias } from "../context/noticias/useNoticias";
 import { useDocumentos } from "../context/documentos/useDocumentos";
 import { useEventos } from "../context/eventos/useEventos";
@@ -117,7 +112,6 @@ export const PanelAdmin = () => {
   const { eventos } = useEventos();
   const { documentos } = useDocumentos();
   const { usuarios } = useUsuarios();
-  const { materias, grupos, asignaciones } = useAcademico();
 
   const eventosProximos = obtenerEventosProximos(eventos);
   const documentosRecientes = ordenarPorFechaDesc(documentos).slice(0, 4);
@@ -188,45 +182,14 @@ export const PanelAdmin = () => {
       icon: Users,
       to: ROUTES.ADMIN_USUARIOS,
     },
-    {
-      title: "Académico",
-      value: asignaciones.length,
-      description: `${materias.length} materias · ${grupos.length} grupos`,
-      icon: GraduationCap,
-      to: ROUTES.ADMIN_ACADEMICO,
-    },
   ];
 
   const accionesRapidas = [
-    {
-      title: "Nuevo noticia",
-      description: "Publica un comunicado académico",
-      icon: Megaphone,
-      to: ROUTES.ADMIN_NOTICIAS_NUEVO,
-    },
-    {
-      title: "Nuevo evento",
-      description: "Agenda una actividad institucional",
-      icon: PlusCircle,
-      to: ROUTES.ADMIN_EVENTOS_NUEVO,
-    },
-    {
-      title: "Nuevo documento",
-      description: "Registra un archivo o formato",
-      icon: FilePlus2,
-      to: ROUTES.ADMIN_DOCUMENTOS_NUEVO,
-    },
     {
       title: "Nuevo usuario",
       description: "Agrega acceso para la comunidad",
       icon: UserPlus,
       to: ROUTES.ADMIN_USUARIOS_NUEVO,
-    },
-    {
-      title: "Estructura académica",
-      description: "Gestiona materias, grupos y docentes",
-      icon: GraduationCap,
-      to: ROUTES.ADMIN_ACADEMICO,
     },
   ];
 
@@ -259,7 +222,7 @@ export const PanelAdmin = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {estadisticas.map((estadistica) => (
           <AdminStatCard key={estadistica.title} {...estadistica} />
         ))}
@@ -272,7 +235,7 @@ export const PanelAdmin = () => {
           </h2>
 
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Crea contenido nuevo sin entrar primero al listado de cada módulo.
+            Accesos directos de administración. Las noticias, eventos y documentos se crean desde su propio módulo.
           </p>
         </div>
 
@@ -287,7 +250,7 @@ export const PanelAdmin = () => {
         <div className="xl:col-span-2">
           <AdminListCard
             title="Actividad reciente"
-            description="Últimos noticias, eventos y documentos registrados."
+            description="Últimas noticias, eventos y documentos registrados."
             items={actividadReciente}
             emptyMessage="Aún no hay actividad para mostrar."
             actionLabel="Ver noticias"

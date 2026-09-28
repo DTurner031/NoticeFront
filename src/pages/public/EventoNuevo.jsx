@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useEventos } from "../../../context/eventos/useEventos";
-import { useToast } from "../../../context/toast/useToast";
-import { EventoForm } from "../../../components/eventos/EventoForm";
-import { ROUTES } from "../../../constants/routes";
+import { useEventos } from "../../context/eventos/useEventos";
+import { useAuth } from "../../context/auth/useAuth";
+import { useToast } from "../../context/toast/useToast";
+import { EventoForm } from "../../components/eventos/EventoForm";
+import { ROUTES } from "../../constants/routes";
 import {
   hasValidationErrors,
   normalizeFormValues,
   validateEvento,
-} from "../../../utils/validation";
-import { normalizeAudience } from "../../../utils/audience";
+} from "../../utils/validation";
+import { normalizeAudience } from "../../utils/audience";
 
-export const AdminNuevoEvento = () => {
+export const EventoNuevo = () => {
   const navigate = useNavigate();
   const { agregarEvento } = useEventos();
+  const { user } = useAuth();
   const { success, error } = useToast();
 
   const [formulario, setFormulario] = useState({
@@ -55,7 +57,7 @@ export const AdminNuevoEvento = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const datosNormalizados = normalizeFormValues(formulario);
@@ -67,9 +69,13 @@ export const AdminNuevoEvento = () => {
       return;
     }
 
-    agregarEvento(datosNormalizados);
-    success("Evento creado correctamente");
-    navigate(ROUTES.ADMIN_EVENTOS);
+    try {
+      await agregarEvento(datosNormalizados, user?.id);
+      success("Evento creado correctamente");
+      navigate(ROUTES.EVENTOS);
+    } catch (err) {
+      error(err.message || "No se pudo crear el evento");
+    }
   };
 
   return (
@@ -87,6 +93,7 @@ export const AdminNuevoEvento = () => {
         buttonText="Guardar Evento"
         errors={errors}
         handleAudienceChange={handleAudienceChange}
+        cancelTo={ROUTES.EVENTOS}
       />
     </section>
   );

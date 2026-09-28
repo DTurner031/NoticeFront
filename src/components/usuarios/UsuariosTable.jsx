@@ -8,12 +8,8 @@ import { StatusBadge } from "../common/StatusBadge";
 const obtenerVarianteRol = (rol) => {
   const rolNormalizado = normalizeRole(rol);
 
-  if (rolNormalizado === ROLES.ADMIN || rolNormalizado === ROLES.SUPERADMIN) {
+  if (rolNormalizado === ROLES.ADMIN) {
     return "success";
-  }
-
-  if (rolNormalizado === ROLES.PERSONAL) {
-    return "warning";
   }
 
   if (rolNormalizado === ROLES.DOCENTE) {

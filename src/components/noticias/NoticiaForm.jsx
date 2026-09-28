@@ -1,5 +1,8 @@
+import { Link } from "react-router-dom";
+
 import { AudienceFields } from "../common/AudienceFields";
 import { FormError } from "../common/FormError";
+import { ROUTES } from "../../constants/routes";
 
 export const NoticiaForm = ({
   formData,
@@ -8,6 +11,7 @@ export const NoticiaForm = ({
   buttonText,
   errors = {},
   handleAudienceChange,
+  cancelTo = ROUTES.ADMIN_NOTICIAS,
 }) => {
   return (
     <form
@@ -45,27 +49,6 @@ export const NoticiaForm = ({
         <FormError message={errors.titulo} />
       </div>
 
-      <div className="mb-5">
-        <label className="block mb-2 font-medium">Fecha</label>
-
-        <input
-          type="date"
-          name="fecha"
-          value={formData.fecha ?? ""}
-          onChange={handleChange}
-          className={`
-            w-full
-            border
-            rounded-lg
-            px-4
-            py-3
-            bg-transparent
-            ${errors.fecha ? "border-red-500" : "border-slate-300 dark:border-slate-700"}
-          `}
-        />
-        <FormError message={errors.fecha} />
-      </div>
-
       <div className="mb-6">
         <label className="block mb-2 font-medium">Descripción</label>
 
@@ -92,22 +75,46 @@ export const NoticiaForm = ({
         onChange={handleAudienceChange}
       />
 
-      <button
-        type="submit"
-        className="
-          bg-[#6F1D46]
-          text-white
-          w-full
-          px-6
-          py-3
-          sm:w-auto
-          rounded-lg
-          hover:opacity-90
-          transition
-        "
-      >
-        {buttonText}
-      </button>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+        <Link
+          to={cancelTo}
+          className="
+            text-center
+            w-full
+            px-6
+            py-3
+            sm:w-auto
+            rounded-lg
+            border
+            border-slate-300
+            dark:border-slate-600
+            text-slate-700
+            dark:text-slate-200
+            hover:bg-slate-100
+            dark:hover:bg-slate-700
+            transition
+          "
+        >
+          Cancelar
+        </Link>
+
+        <button
+          type="submit"
+          className="
+            bg-[#6F1D46]
+            text-white
+            w-full
+            px-6
+            py-3
+            sm:w-auto
+            rounded-lg
+            hover:opacity-90
+            transition
+          "
+        >
+          {buttonText}
+        </button>
+      </div>
     </form>
   );
 };

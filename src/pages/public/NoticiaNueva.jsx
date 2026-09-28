@@ -1,26 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useNoticias } from "../../../context/noticias/useNoticias";
-import { useToast } from "../../../context/toast/useToast";
-import { NoticiaForm } from "../../../components/noticias/NoticiaForm";
-import { ROUTES } from "../../../constants/routes";
+import { useNoticias } from "../../context/noticias/useNoticias";
+import { useAuth } from "../../context/auth/useAuth";
+import { useToast } from "../../context/toast/useToast";
+import { NoticiaForm } from "../../components/noticias/NoticiaForm";
+import { ROUTES } from "../../constants/routes";
 import {
   hasValidationErrors,
   normalizeFormValues,
   validateNoticia,
-} from "../../../utils/validation";
-import { normalizeAudience } from "../../../utils/audience";
+} from "../../utils/validation";
+import { normalizeAudience } from "../../utils/audience";
 
-export const AdminNuevoNoticia = () => {
+export const NoticiaNueva = () => {
   const navigate = useNavigate();
 
   const { agregarNoticia } = useNoticias();
+  const { user } = useAuth();
   const { success, error } = useToast();
 
   const [formData, setFormData] = useState({
     titulo: "",
-    fecha: "",
     descripcion: "",
     audiencia: normalizeAudience(),
   });
@@ -54,7 +55,7 @@ export const AdminNuevoNoticia = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const datosNormalizados = normalizeFormValues(formData);
@@ -66,9 +67,13 @@ export const AdminNuevoNoticia = () => {
       return;
     }
 
-    agregarNoticia(datosNormalizados);
-    success("Noticia creado correctamente");
-    navigate(ROUTES.ADMIN_NOTICIAS);
+    try {
+      await agregarNoticia(datosNormalizados, user?.id);
+      success("Noticia creada correctamente");
+      navigate(ROUTES.NOTICIAS);
+    } catch (err) {
+      error(err.message || "No se pudo crear la noticia");
+    }
   };
 
   return (
@@ -82,7 +87,7 @@ export const AdminNuevoNoticia = () => {
           dark:text-white
         "
       >
-        Nuevo Noticia
+        Nueva Noticia
       </h1>
 
       <NoticiaForm
@@ -92,6 +97,7 @@ export const AdminNuevoNoticia = () => {
         buttonText="Guardar Noticia"
         errors={errors}
         handleAudienceChange={handleAudienceChange}
+        cancelTo={ROUTES.NOTICIAS}
       />
     </section>
   );

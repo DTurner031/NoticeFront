@@ -1,4 +1,3 @@
-import { ROLES } from "../../constants/roles";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -50,35 +49,39 @@ export const LoginForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     if (mode === "login") {
-      const success = login(formData.correo, formData.password);
+      const resultado = await login(formData.correo, formData.password);
+      setLoading(false);
 
-      if (success) {
+      if (resultado.ok) {
         navigate("/");
         return;
       }
 
-      setError("Credenciales incorrectas");
+      setError(resultado.mensaje || "Credenciales incorrectas");
       return;
     }
 
-    const success = register({
+    // Nota: carrera y semestre se piden en el formulario, pero el backend aún no
+    // tiene dónde guardarlos (la tabla Usuarios no tiene esas columnas todavía).
+    // Por ahora solo se envían nombre, boleta, correo y contraseña.
+    const resultado = await register({
       nombre: formData.nombre,
       correo: formData.correo,
       password: formData.password,
       boleta: formData.boleta,
-      carrera: formData.carrera,
-      semestre: formData.semestre,
-      rol: ROLES.ALUMNO,
-      estado: "activo",
     });
+    setLoading(false);
 
-    if (!success) {
-      setError("El usuario ya existe");
+    if (!resultado.ok) {
+      setError(resultado.mensaje || "El usuario ya existe");
       return;
     }
 
@@ -262,9 +265,15 @@ export const LoginForm = () => {
       </div>
 
       <button
-        className="mt-6 w-full rounded-2xl bg-[#6F1D46] px-5 py-3 font-bold text-white shadow-lg shadow-[#6F1D46]/20 transition hover:-translate-y-0.5 hover:bg-[#750946] focus:outline-none focus:ring-4 focus:ring-[#6F1D46]/20"
+        type="submit"
+        disabled={loading}
+        className="mt-6 w-full rounded-2xl bg-[#6F1D46] px-5 py-3 font-bold text-white shadow-lg shadow-[#6F1D46]/20 transition hover:-translate-y-0.5 hover:bg-[#750946] focus:outline-none focus:ring-4 focus:ring-[#6F1D46]/20 disabled:opacity-60 disabled:hover:translate-y-0"
       >
-        {mode === "login" ? "Ingresar" : "Registrarse"}
+        {loading
+          ? "Un momento..."
+          : mode === "login"
+          ? "Ingresar"
+          : "Registrarse"}
       </button>
 
       <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">

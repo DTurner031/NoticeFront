@@ -675,31 +675,6 @@ const DocenteAcademicProfile = ({ user }) => {
   );
 };
 
-const AdminAcademicHint = () => (
-  <section className={cardClass}>
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#6F1D46] dark:text-pink-200">
-          Administración académica
-        </p>
-        <h2 className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
-          Gestión académica centralizada
-        </h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Como administrador puedes consultar materias, grupos y asignaciones docentes desde el módulo académico.
-        </p>
-      </div>
-      <Link
-        to={ROUTES.ADMIN_ACADEMICO}
-        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6F1D46] px-5 py-3 font-semibold text-white transition hover:opacity-90"
-      >
-        <ClipboardList size={18} />
-        Ir a Académico
-      </Link>
-    </div>
-  </section>
-);
-
 export const AcademicProfileSection = ({ user, onSaveAcademicProfile }) => {
   const role = normalizeRole(user?.rol);
 
@@ -711,8 +686,8 @@ export const AcademicProfileSection = ({ user, onSaveAcademicProfile }) => {
     return <DocenteAcademicProfile user={user} />;
   }
 
-  if (role === ROLES.ADMIN || role === ROLES.SUPERADMIN) {
-    return <AdminAcademicHint />;
+  if (role === ROLES.ADMIN) {
+    return null;
   }
 
   return (

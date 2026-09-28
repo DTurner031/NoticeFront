@@ -51,7 +51,7 @@ export const usuarios = [
     nombre: "Personal Administrativo Demo",
     correo: "personal@esime.mx",
     password: "123456",
-    rol: ROLES.PERSONAL,
+    rol: ROLES.ADMIN,
     boleta: "ADM-002",
     carrera: "Servicios Escolares",
     semestre: "N/A",

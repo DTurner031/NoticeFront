@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
   Bell,
@@ -33,6 +33,9 @@ export const Topbar = ({
   setDarkMode,
 }) => {
   const { user, logout, canAccessAdmin } = useAuth();
+  const { pathname } = useLocation();
+  // En las pantallas de "crear nuevo" (/noticias/nuevo, /eventos/nuevo, ...) no se muestra el buscador
+  const esModoCrear = pathname.endsWith("/nuevo");
   const { noticias } = useNoticias();
   const { eventos } = useEventos();
   const { documentos } = useDocumentos();
@@ -131,6 +134,7 @@ export const Topbar = ({
           <Menu size={24} />
         </button>
 
+        {!esModoCrear && (
         <div className="relative w-full max-w-none md:max-w-sm">
           <div
             className="
@@ -213,6 +217,7 @@ export const Topbar = ({
             </div>
           )}
         </div>
+        )}
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-4 lg:gap-6">

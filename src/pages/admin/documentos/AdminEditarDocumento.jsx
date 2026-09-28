@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { DocumentoForm } from "../../../components/documentos/DocumentoForm";
+import { useAuth } from "../../../context/auth/useAuth";
 import { useDocumentos } from "../../../context/documentos/useDocumentos";
 import { useToast } from "../../../context/toast/useToast";
+import { ROLES } from "../../../constants/roles";
 import { ROUTES } from "../../../constants/routes";
 import { mismoId } from "../../../utils/id";
 import {
@@ -19,6 +21,7 @@ const documentoVacio = {
   tipo: "",
   fecha: "",
   descripcion: "",
+  archivo: null,
   archivoNombre: "",
   archivoTipo: "",
   archivoTamaño: "",
@@ -26,21 +29,21 @@ const documentoVacio = {
   audiencia: normalizeAudience(),
 };
 
-export const AdminEditarDocumento = () => {
-  const { id } = useParams();
+// Formulario de edición. Se monta SOLO cuando el documento ya llegó del servidor,
+// así el estado inicial siempre tiene los datos reales (aunque recargues la página).
+const EditarDocumentoForm = ({ documento, volverA }) => {
   const navigate = useNavigate();
 
-  const { documentos, editarDocumento } = useDocumentos();
+  const { editarDocumento } = useDocumentos();
   const { success, error } = useToast();
-
-  const documento = documentos.find((item) => mismoId(item.id, id));
 
   const [formulario, setFormulario] = useState(() => ({
     ...documentoVacio,
-    ...(documento || {}),
+    ...documento,
     titulo: documento?.titulo ?? documento?.nombre ?? "",
   }));
   const [errors, setErrors] = useState({});
+  const [guardando, setGuardando] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files, type } = e.target;
@@ -53,16 +56,14 @@ export const AdminEditarDocumento = () => {
       setFormulario({
         ...formulario,
         tipo: formulario.tipo || inferDocumentTypeFromFile(file.name),
+        archivo: file,
         archivoNombre: file.name,
         archivoTipo: file.type,
         archivoTamaño: file.size,
       });
 
-      if (errors.tipo) {
-        setErrors({
-          ...errors,
-          tipo: "",
-        });
+      if (errors.tipo || errors.url) {
+        setErrors({ ...errors, tipo: "", url: "" });
       }
 
       return;
@@ -95,11 +96,16 @@ export const AdminEditarDocumento = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const datosNormalizados = normalizeFormValues(formulario);
     const validationErrors = validateDocumento(datosNormalizados);
+
+    // Al editar basta con que ya exista un archivo en el servidor, o un enlace
+    if (!datosNormalizados.archivo && !datosNormalizados.archivoNombre && !datosNormalizados.url) {
+      validationErrors.url = "Adjunta un archivo o escribe un enlace";
+    }
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
@@ -107,14 +113,56 @@ export const AdminEditarDocumento = () => {
       return;
     }
 
+    setGuardando(true);
     try {
-      editarDocumento(id, datosNormalizados);
+      await editarDocumento(documento.id, datosNormalizados);
       success("Documento actualizado correctamente");
-      navigate(ROUTES.ADMIN_DOCUMENTOS);
-    } catch {
-      error("Error al actualizar documento");
+      navigate(volverA);
+    } catch (err) {
+      error(err.message || "Error al actualizar documento");
+    } finally {
+      setGuardando(false);
     }
   };
+
+  return (
+    <section className="space-y-6">
+      <h1 className="text-3xl font-bold">Editar Documento</h1>
+
+      <DocumentoForm
+        formulario={formulario}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        buttonText={guardando ? "Guardando..." : "Actualizar Documento"}
+        guardando={guardando}
+        errors={errors}
+        handleAudienceChange={handleAudienceChange}
+        modoEdicion
+        cancelTo={volverA}
+      />
+    </section>
+  );
+};
+
+// Sirve para dos rutas: /admin/documentos/editar/:id (Administrador)
+// y /documentos/editar/:id (Docente, solo sobre sus propios documentos).
+export const AdminEditarDocumento = () => {
+  const { id } = useParams();
+  const { user, hasRole } = useAuth();
+  const { documentos, loading } = useDocumentos();
+
+  const esAdmin = hasRole([ROLES.ADMIN]);
+  const volverA = esAdmin ? ROUTES.ADMIN_DOCUMENTOS : ROUTES.DOCENTE_PUBLICACIONES;
+
+  const documento = documentos.find((item) => mismoId(item.id, id));
+
+  if (loading) {
+    return (
+      <section>
+        <p className="text-slate-500 dark:text-slate-300">Cargando documento...</p>
+      </section>
+    );
+  }
 
   if (!documento) {
     return (
@@ -126,18 +174,20 @@ export const AdminEditarDocumento = () => {
     );
   }
 
-  return (
-    <section className="space-y-6">
-      <h1 className="text-3xl font-bold">Editar Documento</h1>
+  if (!esAdmin && String(documento.idUsuario) !== String(user?.id)) {
+    return (
+      <section className="space-y-3">
+        <h2 className="text-red-600 font-bold text-xl">
+          Solo puedes editar los documentos que tú publicaste
+        </h2>
+        <Link to={volverA} className="text-[#6F1D46] underline dark:text-pink-200">
+          Volver a mis publicaciones
+        </Link>
+      </section>
+    );
+  }
 
-      <DocumentoForm
-        formulario={formulario}
-        handleChange={handleChange}
-        handleSubmit={handleSubmit}
-        buttonText="Actualizar Documento"
-        errors={errors}
-        handleAudienceChange={handleAudienceChange}
-      />
-    </section>
+  return (
+    <EditarDocumentoForm key={documento.id} documento={documento} volverA={volverA} />
   );
 };
