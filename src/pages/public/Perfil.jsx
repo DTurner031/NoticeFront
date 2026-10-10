@@ -11,6 +11,8 @@ import { useNoticias } from "../../context/noticias/useNoticias";
 import { useEventos } from "../../context/eventos/useEventos";
 import { useDocumentos } from "../../context/documentos/useDocumentos";
 import { normalizeSubscriptions } from "../../constants/subscriptions";
+import { ROLES, normalizeRole } from "../../constants/roles";
+import { CorreoPreferencia } from "../../components/profile/CorreoPreferencia";
 import {
   hasValidationErrors,
   normalizeFormValues,
@@ -31,8 +33,9 @@ export const Perfil = () => {
     correo: user?.correo ?? "",
     boleta: user?.boleta ?? "",
     carrera: user?.carrera ?? "",
-    semestre: user?.semestre ?? "",
+    semestre: String(user?.semestre ?? "").match(/\d+/)?.[0] ?? "",
   }));
+  const [guardando, setGuardando] = useState(false);
   const [subscriptions, setSubscriptions] = useState(() =>
     normalizeSubscriptions(user?.subscriptions)
   );
@@ -56,6 +59,9 @@ export const Perfil = () => {
 
   if (!user) return null;
 
+  // Carrera y semestre solo aplican a los alumnos
+  const esAlumno = normalizeRole(user.rol) === ROLES.ALUMNO;
+
   const usuarioPreview = {
     ...user,
     ...formData,
@@ -78,11 +84,19 @@ export const Perfil = () => {
     }
   };
 
-  const handleSubmitInfo = (e) => {
+  const handleSubmitInfo = async (e) => {
     e.preventDefault();
 
     const datosNormalizados = normalizeFormValues(formData);
     const validationErrors = validatePerfil(datosNormalizados);
+
+    // El correo y la boleta no se editan aquí, y carrera/semestre solo aplican a alumnos
+    delete validationErrors.correo;
+    delete validationErrors.boleta;
+    if (!esAlumno) {
+      delete validationErrors.carrera;
+      delete validationErrors.semestre;
+    }
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
@@ -90,11 +104,22 @@ export const Perfil = () => {
       return;
     }
 
+    setGuardando(true);
     try {
-      updateUserProfile(datosNormalizados);
+      await updateUserProfile(
+        esAlumno
+          ? {
+              nombre: datosNormalizados.nombre,
+              carrera: datosNormalizados.carrera,
+              semestre: datosNormalizados.semestre,
+            }
+          : { nombre: datosNormalizados.nombre }
+      );
       success("Perfil actualizado correctamente");
     } catch (err) {
       error(err.message || "No se pudo actualizar el perfil");
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -118,21 +143,17 @@ export const Perfil = () => {
     }));
   };
 
-  const handleAcademicProfileSave = (datosActualizados) => {
-    updateUserProfile(datosActualizados);
-
-    setFormData((prev) => ({
-      ...prev,
-      carrera: datosActualizados.carrera ?? prev.carrera,
-      semestre: datosActualizados.semestre ?? prev.semestre,
-    }));
+  // La carrera y el semestre se cambian solo en "Información personal", porque esos
+  // datos se guardan en el servidor. Aquí solo se conserva el perfil académico local.
+  const handleAcademicProfileSave = ({ academicProfile }) => {
+    updateUserProfile({ academicProfile });
   };
 
-  const handleSubmitSubscriptions = (e) => {
+  const handleSubmitSubscriptions = async (e) => {
     e.preventDefault();
 
     try {
-      updateUserProfile({ subscriptions });
+      await updateUserProfile({ subscriptions });
       success("Preferencias guardadas correctamente");
     } catch (err) {
       error(err.message || "No se pudieron guardar las preferencias");
@@ -159,6 +180,8 @@ export const Perfil = () => {
             errors={errors}
             onChange={handleInfoChange}
             onSubmit={handleSubmitInfo}
+            guardando={guardando}
+            mostrarAcademico={esAlumno}
           />
 
           <AcademicProfileSection
@@ -172,6 +195,8 @@ export const Perfil = () => {
             onToggleChannel={handleToggleChannel}
             onSubmit={handleSubmitSubscriptions}
           />
+
+          <CorreoPreferencia />
         </div>
 
         <PersonalizedRecommendations items={recomendaciones} />

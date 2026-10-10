@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useUsuarios } from "../usuarios/useUsuarios";
 import {
   autenticarUsuario,
   registrarUsuario,
+  actualizarPerfilApi,
   obtenerSesion,
   guardarSesion,
   cerrarSesion,
@@ -14,8 +14,6 @@ import { normalizeAcademicProfile } from "../../utils/academicProfile";
 import { AuthContext } from "./AuthContext";
 
 export const AuthProvider = ({ children }) => {
-  const { editarUsuario } = useUsuarios();
-
   const [user, setUser] = useState(() => {
     const storedUser = obtenerSesion();
 
@@ -63,16 +61,33 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Nota: esto sigue actualizando el perfil solo en el almacenamiento local (mock).
-  // Cuando se conecte el módulo de Usuarios al backend, este método debe llamar
-  // a PUT /api/usuarios/{id} en su lugar.
+  // Nombre, carrera y semestre se guardan en el backend (PUT /api/auth/perfil).
+  // Las preferencias de suscripción y el perfil académico siguen siendo locales
+  // (solo de esta sesión). Lanza un error si el servidor rechaza los datos.
   const updateUserProfile = useCallback(
-    (datosActualizados) => {
+    async (datosActualizados) => {
       if (!user) return null;
+
+      const cambiaPerfil = ["nombre", "carrera", "semestre"].some(
+        (campo) =>
+          campo in datosActualizados &&
+          String(datosActualizados[campo] ?? "") !== String(user[campo] ?? "")
+      );
+
+      let datosDelServidor = {};
+
+      if (cambiaPerfil) {
+        datosDelServidor = await actualizarPerfilApi({
+          nombre: datosActualizados.nombre ?? user.nombre,
+          carrera: datosActualizados.carrera ?? user.carrera,
+          semestre: datosActualizados.semestre ?? user.semestre,
+        });
+      }
 
       const usuarioActualizado = {
         ...user,
         ...datosActualizados,
+        ...datosDelServidor, // lo que el servidor guardó manda sobre lo escrito en el formulario
         subscriptions: normalizeSubscriptions(
           datosActualizados.subscriptions || user.subscriptions
         ),
@@ -81,12 +96,11 @@ export const AuthProvider = ({ children }) => {
           : user.academicProfile,
       };
 
-      editarUsuario(user.id, usuarioActualizado);
       setUser(usuarioActualizado);
 
       return usuarioActualizado;
     },
-    [editarUsuario, user]
+    [user]
   );
 
   const logout = useCallback(() => {

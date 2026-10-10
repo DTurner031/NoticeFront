@@ -2,6 +2,7 @@ export const ENDPOINTS = Object.freeze({
   auth: Object.freeze({
     login: "/auth/login",
     register: "/auth/register",
+    perfil: "/auth/perfil",
   }),
   usuarios: "/usuarios",
   roles: "/roles",

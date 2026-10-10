@@ -113,13 +113,7 @@ export const eventoRules = [
     requiredMessage: "El lugar es obligatorio",
     minLengthMessage: "El lugar debe tener al menos 3 caracteres",
   },
-  {
-    field: "categoria",
-    required: true,
-    minLength: 3,
-    requiredMessage: "La categoría es obligatoria",
-    minLengthMessage: "La categoría debe tener al menos 3 caracteres",
-  },
+ 
   {
     field: "descripcion",
     required: true,
@@ -190,9 +184,9 @@ export const usuarioRules = [
   {
     field: "semestre",
     required: true,
-    numberRange: { min: 1, max: 12 },
+    numberRange: { min: 1, max: 9 },
     requiredMessage: "El semestre es obligatorio",
-    rangeMessage: "El semestre debe estar entre 1 y 12",
+    rangeMessage: "El semestre debe estar entre 1 y 9",
   },
   {
     field: "rol",
@@ -245,9 +239,9 @@ export const perfilRules = [
   {
     field: "semestre",
     required: true,
-    numberRange: { min: 1, max: 12 },
+    numberRange: { min: 1, max: 9 },
     requiredMessage: "El semestre es obligatorio",
-    rangeMessage: "El semestre debe estar entre 1 y 12",
+    rangeMessage: "El semestre debe estar entre 1 y 9",
   },
 ];
 

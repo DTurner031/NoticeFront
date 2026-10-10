@@ -1,3 +1,5 @@
+import { CalendarDays, MapPin } from "lucide-react";
+
 export const EventCard = ({
   titulo,
   fecha,
@@ -56,21 +58,29 @@ export const EventCard = ({
 
       <p
         className="
+          mt-3
+          flex
+          items-center
+          gap-2
           text-slate-500
           dark:text-slate-400
-          mt-3
         "
       >
-        📅 {fecha}
+        <CalendarDays size={16} aria-hidden="true" />
+        {fecha}
       </p>
 
       <p
         className="
+          flex
+          items-center
+          gap-2
           text-slate-500
           dark:text-slate-400
         "
       >
-        📍 {lugar}
+        <MapPin size={16} aria-hidden="true" />
+        {lugar}
       </p>
     </article>
   );

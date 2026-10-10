@@ -51,6 +51,12 @@ import { RoleRoute } from "./RoleRoute";
 import { ROUTES } from "../constants/routes";
 import { ROLES } from "../constants/roles";
 
+/*Recuperar contraseña*/
+import { RecuperarContrasena } from "../pages/auth/RecuperarContrasena";
+import { RestablecerContrasena } from "../pages/auth/RestablecerContrasena";
+
+
+
 /* Error 404 */
 import { NotFound } from "../pages/NotFound";
 
@@ -370,9 +376,21 @@ return ( <Routes>
     </Layout>
   }
 />
+
+<Route 
+  path={ROUTES.RECUPERAR_CONTRASENA}  
+  element={
+  <RecuperarContrasena />
+  } 
+  />
+
+<Route 
+  path={ROUTES.RESTABLECER_CONTRASENA} 
+  element={
+  <RestablecerContrasena />} 
+  />
+
 </Routes>
-
-
 
 );
 };

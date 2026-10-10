@@ -58,10 +58,14 @@ const valueMatchesSelection = (values = [], value = "") => {
   if (selectionIncludesAll(values)) return true;
   if (!value) return false;
 
-  const normalizedValue = normalizeSearchText(value);
+  // Las opciones de audiencia usan guiones ("comunicaciones-y-electronica") y el perfil del
+  // usuario usa el nombre completo; se igualan para poder compararlos.
+  const comparable = (texto) => normalizeSearchText(texto).replace(/-/g, " ");
+
+  const normalizedValue = comparable(value);
 
   return values.some((selectedValue) => {
-    const normalizedSelected = normalizeSearchText(selectedValue);
+    const normalizedSelected = comparable(selectedValue);
 
     return (
       normalizedValue === normalizedSelected ||

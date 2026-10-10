@@ -4,6 +4,7 @@ import { useEventos } from "../../context/eventos/useEventos";
 import { useDocumentos } from "../../context/documentos/useDocumentos";
 import { getRoleLabel } from "../../constants/roles";
 import { getExperienceRole } from "../../constants/roleExperience";
+import { CalendarDays, FileText, Megaphone } from "lucide-react";
 
 const getWelcomeMessage = (user) => {
   const role = getExperienceRole(user);
@@ -53,7 +54,7 @@ export const WelcomeCard = () => {
               dark:text-white
             "
           >
-            Hola {nombreUsuario} 👋
+            Hola, {nombreUsuario}
           </h2>
 
           <p
@@ -87,16 +88,19 @@ export const WelcomeCard = () => {
           gap-6
         "
       >
-        <span className="font-medium">
-          📢 {noticias.length} noticias activos
+        <span className="inline-flex items-center gap-2 font-medium">
+          <Megaphone size={18} aria-hidden="true" />
+          {noticias.length} noticias activas
         </span>
 
-        <span className="font-medium">
-          🏆 {eventos.length} eventos próximos
+        <span className="inline-flex items-center gap-2 font-medium">
+          <CalendarDays size={18} aria-hidden="true" />
+          {eventos.length} eventos próximos
         </span>
 
-        <span className="font-medium">
-          📄 {documentos.length} documentos publicados
+        <span className="inline-flex items-center gap-2 font-medium">
+          <FileText size={18} aria-hidden="true" />
+          {documentos.length} documentos publicados
         </span>
       </div>
     </section>

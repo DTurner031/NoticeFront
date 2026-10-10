@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   Eye,
@@ -69,14 +69,13 @@ export const LoginForm = () => {
       return;
     }
 
-    // Nota: carrera y semestre se piden en el formulario, pero el backend aún no
-    // tiene dónde guardarlos (la tabla Usuarios no tiene esas columnas todavía).
-    // Por ahora solo se envían nombre, boleta, correo y contraseña.
     const resultado = await register({
       nombre: formData.nombre,
       correo: formData.correo,
       password: formData.password,
       boleta: formData.boleta,
+      carrera: formData.carrera,
+      semestre: formData.semestre,
     });
     setLoading(false);
 
@@ -262,6 +261,16 @@ export const LoginForm = () => {
             </button>
           </div>
         </div>
+        {mode === "login" && (
+  <div className="text-right">
+    <Link
+      to="/recuperar-contrasena"
+      className="text-sm font-semibold text-[#6F1D46] hover:underline dark:text-pink-100"
+    >
+      ¿Olvidaste tu contraseña?
+    </Link>
+  </div>
+)}
       </div>
 
       <button

@@ -28,6 +28,8 @@ export const ROUTES = Object.freeze({
   ADMIN_USUARIOS: "/admin/usuarios",
   ADMIN_USUARIOS_NUEVO: "/admin/usuarios/nuevo",
   ADMIN_USUARIOS_EDITAR: "/admin/usuarios/editar/:id",
+  RECUPERAR_CONTRASENA: "/recuperar-contrasena",
+  RESTABLECER_CONTRASENA: "/restablecer-contrasena",
 });
 
 export const buildRoute = (route, params = {}) =>
